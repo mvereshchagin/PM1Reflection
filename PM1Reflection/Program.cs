@@ -1,6 +1,7 @@
 ﻿using PM1Reflection;
 using System.Reflection;
 
+#region Attributes
 var type = typeof(FurAnimal);
 
 var propNames =
@@ -53,6 +54,69 @@ var desc = EnumUtils.GetDescription(animal.CutenessLevel);
 Console.WriteLine(desc);
 
 Console.WriteLine(animal);
+#endregion
+
+#region Create by name
+var item = MetadataUtils.CreateInstance<FurAnimal>();
+Console.WriteLine($"Output object: {item}");
+
+var item2 = MetadataUtils.CreateInstance("PM1Reflection.FurAnimal");
+if (item2 is not null)
+    Console.WriteLine(item2.GetType());
+
+
+var item3 = MetadataUtils.CreateInstance2(
+    assemblyPath: @"C:\Users\MVereshchagin\source\repos\BigText\BigText\bin\Debug\net6.0\ExtendedConsole.dll",
+    className: "ExtendedConsole.BigTextPrinter", args: new object?[] { ConsoleColor.Magenta, ConsoleColor.Black, '&' } );
+
+if (item3 is null)
+{
+    Console.WriteLine("Item has not been loaded");
+    return;
+}
+
+MetadataUtils.ExecMethod(item3, "WriteLine", new object?[] { "баба" });
+
+
+#endregion
+
+#region using INotifyPropertyChanged
+var newAnimal = new FurAnimal()
+{
+    Name = "Хорек Борька",
+    CutenessLevel = CutenessLevel.VeryCute,
+    DangerLevel = DangerLevel.Low,
+    Description = "Очень добрый",
+    Height = 0.56f,
+    Weight = 2,
+};
+
+newAnimal.PropertyChanged += (sender, e) =>
+{
+    Console.WriteLine($"Property '{e.PropertyName}' has changed");
+};
+
+newAnimal.PropertyChangingEx += (sender, e) =>
+{
+    if(e.PropertyName == "Name")
+    {
+        if (e.NewValue == "Борька11")
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        Console.WriteLine("Property Name has changed");
+    }
+};
+
+newAnimal.Weight = 3;
+newAnimal.Height = 0.58f;
+
+newAnimal.Name = "Борька";
+Console.WriteLine(newAnimal.Name);
+#endregion
+
 
 
 
